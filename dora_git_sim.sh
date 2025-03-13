@@ -10,6 +10,8 @@ echo "Starting Git Simulation..."
 
 git checkout -b main 2>/dev/null || git checkout main
 
+git pull origin main  # Ensure latest changes are fetched
+
 # Define environments and time tracking
 ENVIRONMENTS=("dev" "qa" "prod")
 SIMULATION_START=$(date +%s)
@@ -19,34 +21,35 @@ LOG_FILE="simulation_timestamps.log"
 
 # Simulate commits, releases, and deployments
 for i in {1..20}; do
-	# Simulate a commit
-	COMMIT_HASH=$(git commit --allow-empty -m "Commit #$i" --date="now" && git rev-parse HEAD)
-	COMMIT_TIME=$(git show -s --format=%ci $COMMIT_HASH)
-	echo "Commit $COMMIT_HASH at $COMMIT_TIME" | tee -a "$LOG_FILE"
+    # Simulate a commit
+    git commit --allow-empty -m "Commit #$i" --date="now"
+    COMMIT_HASH=$(git rev-parse HEAD)
+    COMMIT_TIME=$(git show -s --format=%ci $COMMIT_HASH)
+    echo "Commit $COMMIT_HASH at $COMMIT_TIME" | tee -a "$LOG_FILE"
     
-	sleep $((RANDOM % 120))  # Random delay up to 2 minutes
+    sleep $((RANDOM % 120))  # Random delay up to 2 minutes
     
-	# Simulate a release
-	RELEASE_TAG="v1.0.$i"
-	git tag "$RELEASE_TAG" "$COMMIT_HASH"
-	git push origin "$RELEASE_TAG"
-	echo "Release $RELEASE_TAG at $COMMIT_TIME" | tee -a "$LOG_FILE"
+    # Simulate a release
+    RELEASE_TAG="v1.0.$i"
+    git tag "$RELEASE_TAG" "$COMMIT_HASH"
+    git push origin "$RELEASE_TAG"
+    echo "Release $RELEASE_TAG at $COMMIT_TIME" | tee -a "$LOG_FILE"
     
-	sleep $((RANDOM % 120))
+    sleep $((RANDOM % 120))
     
-	# Simulate deployments across environments
-	for ENV in "${ENVIRONMENTS[@]}"; do
-    	DEPLOY_TAG="$ENV-$RELEASE_TAG"
-    	git tag "$DEPLOY_TAG" "$COMMIT_HASH"
-    	git push origin "$DEPLOY_TAG"
-    	DEPLOY_TIME=$(date +"%Y-%m-%d %H:%M:%S")
-    	echo "$DEPLOY_TAG deployed at $DEPLOY_TIME" | tee -a "$LOG_FILE"
-   	 
-    	sleep $((RANDOM % 120))
-	done
+    # Simulate deployments across environments
+    for ENV in "${ENVIRONMENTS[@]}"; do
+        DEPLOY_TAG="$ENV-$RELEASE_TAG"
+        git tag "$DEPLOY_TAG" "$COMMIT_HASH"
+        git push origin "$DEPLOY_TAG"
+        DEPLOY_TIME=$(date +"%Y-%m-%d %H:%M:%S")
+        echo "$DEPLOY_TAG deployed at $DEPLOY_TIME" | tee -a "$LOG_FILE"
+        
+        sleep $((RANDOM % 120))
+    done
 
-	# Stop simulation if past end time
-	[[ $(date +%s) -ge $SIMULATION_END ]] && break
+    # Stop simulation if past end time
+    [[ $(date +%s) -ge $SIMULATION_END ]] && break
 
 done
 
