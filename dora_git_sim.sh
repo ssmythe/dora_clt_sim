@@ -30,7 +30,7 @@ for i in {1..20}; do
     sleep $((RANDOM % 60)) # Random delay up to 2 minutes
 
     # Simulate a release
-    RELEASE_TAG="v1.0.$i"
+    RELEASE_TAG="v2.0.$i"
     git tag "$RELEASE_TAG" "$COMMIT_HASH"
     git push origin "$RELEASE_TAG"
     echo "Release $RELEASE_TAG at $COMMIT_TIME" | tee -a "$LOG_FILE"

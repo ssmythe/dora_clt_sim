@@ -4,7 +4,7 @@
 
 # Output file
 DEBUG_LOG="git_debug_output.log"
-> "$DEBUG_LOG"  # Clear previous contents
+>"$DEBUG_LOG" # Clear previous contents
 
 echo "Collecting Git Debug Information..." | tee -a "$DEBUG_LOG"
 
@@ -14,22 +14,22 @@ git branch --show-current | tee -a "$DEBUG_LOG"
 
 # Get the latest commits
 echo -e "\nRecent Commits:" | tee -a "$DEBUG_LOG"
-git log --pretty=format:"%H %ci" -n 10 | tee -a "$DEBUG_LOG"
+git log --pretty=format:"%H %ci" -n 20 | tee -a "$DEBUG_LOG"
 
-# Get all tags and their creation dates
-echo -e "\nAll Tags with Creation Dates:" | tee -a "$DEBUG_LOG"
-git for-each-ref --format="%(refname:short) %(creatordate:iso)" refs/tags | tee -a "$DEBUG_LOG"
+# Get all v2.x.y release tags and their creation dates
+echo -e "\nAll v2.x.y Release Tags with Creation Dates:" | tee -a "$DEBUG_LOG"
+git for-each-ref --format="%(refname:short) %(creatordate:iso)" refs/tags | grep -E "^v2\\.\d+\\.\d+$" | tee -a "$DEBUG_LOG"
 
-# List all prod tags and their associated commits
+# List all prod deployment tags and their associated commits
 echo -e "\nProd Deployment Tags and Associated Commits:" | tee -a "$DEBUG_LOG"
-git tag --list "prod-*" | while read tag; do
+git tag --list "prod-v2.*" | while read tag; do
     echo "Tag: $tag" | tee -a "$DEBUG_LOG"
     git show -s --format="%H %ci" refs/tags/$tag | tee -a "$DEBUG_LOG"
 done
 
 # Check what tags contain the latest commits
 echo -e "\nChecking Which Tags Contain Recent Commits:" | tee -a "$DEBUG_LOG"
-git log --pretty=format:"%H" -n 5 | while read commit; do
+git log --pretty=format:"%H" -n 10 | while read commit; do
     echo "Commit: $commit" | tee -a "$DEBUG_LOG"
     git tag --contains $commit | tee -a "$DEBUG_LOG"
 done
