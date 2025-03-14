@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Simulates Git activity: commits, releases, and environment deployments.
-# Uses random sleep intervals up to 2 minutes between activities.
+# Uses random sleep intervals up to 60 seconds between activities.
 
 set -e # Exit on error
 
@@ -27,7 +27,7 @@ for i in {1..20}; do
     COMMIT_TIME=$(git show -s --format=%ci $COMMIT_HASH)
     echo "Commit $COMMIT_HASH at $COMMIT_TIME" | tee -a "$LOG_FILE"
 
-    sleep $((RANDOM % 60)) # Random delay up to 2 minutes
+    sleep $((RANDOM % 60)) # Random delay up to 60 seconds
 
     # Simulate a release
     RELEASE_TAG="v2.0.$i"
